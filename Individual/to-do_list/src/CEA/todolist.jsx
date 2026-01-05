@@ -27,6 +27,12 @@ class ToDolist extends Component {
     console.log(this.state.todos);
   };
 
+  deleteTodo = (id) => {
+    this.setState((prevState) => ({
+      todos: prevState.todos.filter((x) => x.id !== id),
+    }));
+  };
+
   render() {
     const { todos, inputValue } = this.state;
     return (
@@ -40,7 +46,7 @@ class ToDolist extends Component {
             <li key={x.id}>
               <input type="checkbox" value={x.completed} />
               {x.text}
-              <button>Delete</button>
+              <button onClick={() => this.deleteTodo(x.id)}>Delete</button>
             </li>
           ))}
         </ul>
