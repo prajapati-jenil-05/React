@@ -33,6 +33,14 @@ class ToDolist extends Component {
     }));
   };
 
+  toggleTodo = (id) => {
+    this.setState((prevState) => ({
+      todos: prevState.todos.map((x) =>
+        x.id == id ? { ...x, completed: !x.completed } : x
+      ),
+    }));
+  };
+
   render() {
     const { todos, inputValue } = this.state;
     return (
@@ -44,8 +52,12 @@ class ToDolist extends Component {
         <ul>
           {todos.map((x) => (
             <li key={x.id}>
-              <input type="checkbox" value={x.completed} />
-              {x.text}
+              <input
+                type="checkbox"
+                value={x.completed}
+                onChange={() => this.toggleTodo(x.id)}
+              />
+              <p style={{ color: x.completed ? "green" : "red" }}>{x.text}</p>
               <button onClick={() => this.deleteTodo(x.id)}>Delete</button>
             </li>
           ))}
