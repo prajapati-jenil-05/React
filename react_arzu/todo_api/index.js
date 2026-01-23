@@ -1,11 +1,27 @@
 const express = require("express");
+const fs = require("fs");
+const { json } = require("stream/consumers");
 const app = express();
 const port = 3000;
+const filepath = "./todos.json";
+function readdata() {
+  const todos = fs.readFileSync(filepath)
+  if(!todos) {
+    return [];
+  } else {
+    return JSON.parse(todos);
+  }
+}
+function savedata() {
+
+
+}
 
 let todos = [];
 app.use(express.json());
 
 app.get("/todo/", (req, res) => {
+  const todos = readdata();
   res.json(todos);
 });
 
