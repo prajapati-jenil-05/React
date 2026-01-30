@@ -1,11 +1,10 @@
 const express = require("express");
 const fs = require("fs");
-const { json } = require("stream/consumers");
 const app = express();
 const port = 3000;
-const filepath = "./todos.json";
+const filePath = "todos.json";
 function readdata() {
-  const todos = fs.readFileSync(filepath);
+  const todos = fs.readFileSync(filePath);
   if (!todos) {
     return [];
   } else {
@@ -13,67 +12,60 @@ function readdata() {
   }
 }
 function savedata(data) {
-  fs.writeFileSync(filepath, data);
+  fs.writeFileSync(filePath, JSON.stringify(data));
 }
-
-let todos = [];
+// let todos = [];
 app.use(express.json());
-
+// fetch all todos
 app.get("/todo/", (req, res) => {
   const todos = readdata();
   res.json(todos);
 });
-
+// get todo with id
 app.get("/todo/:id", (req, res) => {
   const todos = readdata();
   const id = req.params.id;
   const index = todos.findIndex((todo) => todo.id == id);
   if (index == -1) {
-    return res.status(401).json({ message: "no Todo with given id" });
+    return res.status(401).json({ message: "No todo with given id:" + id });
   }
   res.status(201).json(todos[index]);
 });
-
 app.post("/todo/", (req, res) => {
   const todos = readdata();
-  const newTodo = {
+  const newtodo = {
     id: Date.now().toString(),
     title: req.body.title,
-    iscompleted: false,
+    isCompleted: false,
   };
-  todos.push(newTodo);
+  todos.push(newtodo);
   savedata(todos);
-  res
-    .status(201)
-    .json({ " message": "todo created successfully", todo: newTodo });
+  res.status(201).json({ message: "Data added", data: newtodo });
 });
-
-app.put("/todo/", (req, res) => {
+app.put("/todo/:id", (req, res) => {
   const todos = readdata();
   const id = req.params.id;
   const index = todos.findIndex((todo) => todo.id == id);
   if (index == -1) {
-    return res.status(401).json({ message: "no Todo with given id" });
+    return res.status(401).json({ message: "No todo with given id:" + id });
   }
   todos[index] = {
     ...todos[index],
     title: req.body.title,
   };
   savedata(todos);
-  res.status(201).json({ message: "data updates", data: todos[index] });
+  res.status(201).json({ message: "Data updated", data: todos[index] });
 });
-
 app.delete("/todo/:id", (req, res) => {
-  const todos = readdata();
+  let todos = readdata();
   const id = req.params.id;
   const index = todos.findIndex((todo) => todo.id == id);
   if (index == -1) {
-    return res.status(401).json({ message: "no Todo with given id" });
+    return res.status(401).json({ message: "No todo with given id:" + id });
   }
   todos = todos.filter((todo) => todo.id != id);
   savedata(todos);
-  res.send("delete todo with id" + req.params.id);
+  res.send("deleted todo with id" + req.params.id);
 });
-
 app.get("/", (req, res) => res.send("Hello World!"));
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
