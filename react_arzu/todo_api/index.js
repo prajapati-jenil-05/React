@@ -5,16 +5,15 @@ const app = express();
 const port = 3000;
 const filepath = "./todos.json";
 function readdata() {
-  const todos = fs.readFileSync(filepath)
-  if(!todos) {
+  const todos = fs.readFileSync(filepath);
+  if (!todos) {
     return [];
   } else {
     return JSON.parse(todos);
   }
 }
-function savedata() {
-
-
+function savedata(data) {
+  fs.writeFileSync(filepath, data);
 }
 
 let todos = [];
@@ -26,6 +25,7 @@ app.get("/todo/", (req, res) => {
 });
 
 app.get("/todo/:id", (req, res) => {
+  const todos = readdata();
   const id = req.params.id;
   const index = todos.findIndex((todo) => todo.id == id);
   if (index == -1) {
@@ -35,18 +35,21 @@ app.get("/todo/:id", (req, res) => {
 });
 
 app.post("/todo/", (req, res) => {
+  const todos = readdata();
   const newTodo = {
     id: Date.now().toString(),
     title: req.body.title,
     iscompleted: false,
   };
   todos.push(newTodo);
+  savedata(todos);
   res
     .status(201)
     .json({ " message": "todo created successfully", todo: newTodo });
 });
 
 app.put("/todo/", (req, res) => {
+  const todos = readdata();
   const id = req.params.id;
   const index = todos.findIndex((todo) => todo.id == id);
   if (index == -1) {
@@ -56,16 +59,19 @@ app.put("/todo/", (req, res) => {
     ...todos[index],
     title: req.body.title,
   };
-  res.status(201).json({ message: "data added", data: todos[index] });
+  savedata(todos);
+  res.status(201).json({ message: "data updates", data: todos[index] });
 });
 
 app.delete("/todo/:id", (req, res) => {
+  const todos = readdata();
   const id = req.params.id;
   const index = todos.findIndex((todo) => todo.id == id);
   if (index == -1) {
     return res.status(401).json({ message: "no Todo with given id" });
   }
   todos = todos.filter((todo) => todo.id != id);
+  savedata(todos);
   res.send("delete todo with id" + req.params.id);
 });
 
